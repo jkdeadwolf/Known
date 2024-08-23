@@ -27,9 +27,12 @@ builder.Services.AddKnownSqlSugar(config =>
     config.AopEvents ??= new AopEvents();
     config.AopEvents.OnLogExecuting = (sql, pars) =>
     {
-        //var param = string.Join(",", pars.Select(p => $"{p.ParameterName}={p.Value}"));
-        //Console.WriteLine($"SQL: {sql}");
-        //Console.WriteLine($"参数: {param}");
+        var param = string.Join(",", pars.Select(p => $"{p.ParameterName}={p.Value}"));
+        Console.WriteLine($"SQL: {sql}");
+        Console.WriteLine($"参数: {param}");
+    };
+    config.AopEvents.OnError = (SqlSugarException exception) => {
+        Console.WriteLine($"exception: {exception.ToString()}");
     };
 });
 
@@ -37,7 +40,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseWebAssemblyDebugging();
+    //app.UseWebAssemblyDebugging();
+    app.UseDeveloperExceptionPage();
     //app.UseCssLiveReload();
 }
 else

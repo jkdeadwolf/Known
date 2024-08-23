@@ -106,7 +106,7 @@ class SqlSugarRepository : IDataRepository
         return sugar.QueryListAsync<SysLog>(sql.Key, sql.Value);
     }
 
-    public Task<List<CountInfo>> GetVisitLogsAsync(Database db, string userName)
+    public async Task<List<CountInfo>> GetVisitLogsAsync(Database db, string userName)
     {
         //var sql = $@"
         //select Target as Field1,count(*) as TotalCount 
@@ -114,12 +114,13 @@ class SqlSugarRepository : IDataRepository
         //where Type='{LogType.Page}' and CreateBy=@userName 
         //group by Target";
         //return db.QueryListAsync<CountInfo>(sql, new { userName });
-        var sql = sugar.Queryable<SysLog>()
-                       .Where(d => d.Type == $"{LogType.Page}" && d.CreateBy == userName)
+        string logType = LogType.Page.ToString();
+        return await sugar.Queryable<SysLog>()
+                       .Where(d => d.Type == logType && d.CreateBy == userName)
                        .GroupBy(d => d.Target)
                        .Select(d => new CountInfo { Field1 = d.Target, TotalCount = SqlFunc.AggregateCount(d.Id) })
-                       .ToSql();
-        return sugar.QueryListAsync<CountInfo>(sql.Key, sql.Value);
+                       .ToListAsync();
+        //return sugar.QueryListAsync<CountInfo>(sql.Key, sql.Value);
     }
 
     public Task<List<SysFlowLog>> GetFlowLogsAsync(Database db, string bizId)
